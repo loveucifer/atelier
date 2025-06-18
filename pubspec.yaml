@@ -1,0 +1,36 @@
+name: atelier
+description: "A new Flutter project for Atelier."
+publish_to: 'none' # Remove this line if you intend to publish to pub.dev
+
+version: 1.0.0+1
+
+# This is the section that was missing.
+# It tells Flutter your project is compatible with Dart version 3.8.0 and any
+# newer, non-breaking updates.
+environment:
+  sdk: '>=3.4.0 <4.0.0' # Use a recent stable SDK constraint
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # I've corrected this line. It should just be the package and version.
+  # I've also updated it to a more recent version of the package.
+  supabase_flutter: ^2.5.3 # Check pub.dev for the absolute latest version
+  
+  # The Cupertino icons are for iOS styling.
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
