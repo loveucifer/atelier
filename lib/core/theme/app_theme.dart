@@ -27,12 +27,12 @@ class AppTheme {
       iconTheme: IconThemeData(color: Colors.white),
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
     ),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: pitchBlack.withOpacity(0.8), // Semi-transparent for a glass effect
-      selectedItemColor: primaryRed,
-      unselectedItemColor: Colors.grey[600],
-      elevation: 0,
-    ),
+    //bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      //backgroundColor: pitchBlack.withOpacity(0.8), // Semi-transparent for a glass effect
+     // selectedItemColor: primaryRed,
+     // unselectedItemColor: Colors.grey[600],
+     // elevation: 0,
+    //),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryRed,
