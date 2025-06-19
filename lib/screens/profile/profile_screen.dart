@@ -11,7 +11,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // A Future to hold the profile data. This prevents re-fetching on every rebuild.
   late final Future<Map<String, dynamic>> _profileFuture;
 
   @override
@@ -20,31 +19,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _profileFuture = _getProfile();
   }
 
-  // Asynchronous function to fetch profile data from Supabase
   Future<Map<String, dynamic>> _getProfile() async {
-    // Get the current user's ID
     final userId = supabase.auth.currentUser!.id;
-    // Fetch the profile row where the 'id' matches the current user's ID
     final data = await supabase
         .from('profiles')
         .select()
         .eq('id', userId)
-        .single(); // .single() expects exactly one row, which is perfect for a profile
+        .single();
     return data;
   }
 
-  // Simple Trust Score calculation based on the project document
   String _calculateTrustScore(Map<String, dynamic> profile) {
-      // Placeholder logic: 100 if verified, 50 otherwise.
-      // This will be expanded later with review counts and other metrics.
       return profile['is_verified'] ? '100%' : '50%';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Make the scaffold and app bar transparent to see the animation behind them
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Profile'),
+        backgroundColor: Colors.transparent, // Make AppBar transparent
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
@@ -55,37 +52,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // Sign out the user
               await supabase.auth.signOut();
-              // The StreamBuilder in main.dart will automatically navigate to LoginScreen
             },
           ),
         ],
       ),
-      // FutureBuilder handles the asynchronous loading of data
       body: FutureBuilder<Map<String, dynamic>>(
         future: _profileFuture,
         builder: (context, snapshot) {
-          // Show a loading spinner while data is being fetched
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          // Show an error message if something went wrong
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          // If there's no data, show a message (shouldn't happen if sign-up trigger works)
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text("Could not load profile"));
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Center(child: Text('Error: ${snapshot.error ?? "Could not load profile"}'));
           }
 
-          // If data is loaded successfully, display it
           final profile = snapshot.data!;
           final avatarUrl = profile['avatar_url'];
 
           return RefreshIndicator(
             onRefresh: () async {
-                // Allows user to pull down to refresh their profile data
                 setState(() {
                     _profileFuture = _getProfile();
                 });
@@ -115,7 +101,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       '@${profile['username'] ?? 'nousername'}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey),
                     ),
-                    // Conditionally show the "Verified" badge
                      if (profile['is_verified'] == true) ...[
                         const SizedBox(height: 8),
                         Chip(

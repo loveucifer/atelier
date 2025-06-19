@@ -5,8 +5,7 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Search Screen')),
-    );
+    // Return only the content.
+    return const Center(child: Text('Search Screen'));
   }
 }

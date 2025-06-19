@@ -5,8 +5,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Home Screen')),
-    );
+    // Return only the content, not a whole new Scaffold.
+    // The Scaffold in MainScreen will handle the structure.
+    return const Center(child: Text('Home Screen'));
   }
 }

@@ -6,46 +6,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:atelier/core/theme/app_theme.dart';
 
 Future<void> main() async {
+  // All the initialization code stays the same
   try {
     WidgetsFlutterBinding.ensureInitialized();
-
-    print("--- Step 1: Loading .env file ---");
     await dotenv.load(fileName: ".env");
-    print("✅ .env file found and loaded.");
-
-    print("--- Step 2: Checking environment variables ---");
-    final supabaseUrl = dotenv.env['SUPABASE_URL'];
-    final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
-
-    if (supabaseUrl == null || supabaseUrl.isEmpty) {
-      // This will now be our specific error if the URL is missing
-      throw Exception("FATAL: SUPABASE_URL is not found in .env file or is empty.");
-    }
-    if (supabaseAnonKey == null || supabaseAnonKey.isEmpty) {
-      // This will be our specific error if the key is missing
-      throw Exception("FATAL: SUPABASE_ANON_KEY is not found in .env file or is empty.");
-    }
-    print("✅ Variables loaded from .env successfully.");
-    
-    print("--- Step 3: Initializing Supabase ---");
     await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
+      url: dotenv.env['SUPABASE_URL']!,
+      anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
     );
-    print("✅ Supabase initialized successfully! Starting app...");
-
     runApp(const AtelierApp());
-
   } catch (e) {
-    print('---------------------------------------------------------');
     print('!!!!!!!!!! FATAL ERROR DURING INITIALIZATION !!!!!!!!!!!');
-    print('The specific error is: ${e.runtimeType}');
     print(e.toString());
-    print('---------------------------------------------------------');
   }
 }
 
-// Global shortcut to the Supabase client
 final supabase = Supabase.instance.client;
 
 class AtelierApp extends StatelessWidget {
@@ -59,6 +34,13 @@ class AtelierApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
+      
+      // --- CHANGE FOR DEVELOPMENT ---
+      // We are temporarily bypassing the auth check and going straight to the main screen.
+      home: const MainScreen(),
+
+      /* // --- ORIGINAL AUTH CODE ---
+      // To re-enable login, comment out the line above and uncomment this block.
       home: StreamBuilder<AuthState>(
         stream: supabase.auth.onAuthStateChange,
         builder: (context, snapshot) {
@@ -71,6 +53,7 @@ class AtelierApp extends StatelessWidget {
           return const LoginScreen();
         },
       ),
+      */
     );
   }
 }

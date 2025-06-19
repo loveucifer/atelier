@@ -5,8 +5,7 @@ class ConversationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Conversations Screen')),
-    );
+    // Return only the content.
+    return const Center(child: Text('Conversations Screen'));
   }
 }
