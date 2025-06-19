@@ -1,102 +1,78 @@
-import 'package:flutter/cupertino.dart';
+import 'package:atelier/screens/conversations/conversations_screen.dart';
+import 'package:atelier/screens/home/home_screen.dart';
+import 'package:atelier/screens/profile/profile_screen.dart';
+import 'package:atelier/screens/search/search_screen.dart';
+import 'package:atelier/widgets/common/animated_gradient_background.dart';
+import 'package:atelier/widgets/common/glass_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 
-class GlassNavigationBar extends StatelessWidget {
-  final int selectedIndex;
-  final ValueChanged<int> onItemTapped;
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
-  const GlassNavigationBar({
-    super.key,
-    required this.selectedIndex,
-    required this.onItemTapped,
-  });
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    if (index == 2) {
+      // TODO: Handle create listing action
+      print("Create button tapped!");
+      return;
+    }
+
+    // A bug fix: The PageView has fewer items than the nav bar because of the create button.
+    // We need to map the nav bar index to the correct page index.
+    int pageIndex = index > 2 ? index - 1 : index;
+
+    setState(() {
+      _selectedIndex = index;
+    });
+    _pageController.animateToPage(
+      pageIndex,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: GlassmorphicContainer(
-          width: double.infinity,
-          height: 70,
-          borderRadius: 20,
-          blur: 15,
-          alignment: Alignment.center,
-          border: 1,
-          linearGradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.surface.withOpacity(0.2),
-              Theme.of(context).colorScheme.surface.withOpacity(0.1),
-            ],
-            stops: const [0.1, 1],
+    return Scaffold(
+      body: Stack(
+        children: [
+          AnimatedGradientBackground(
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                // A bug fix: Map the page index back to the correct nav bar index.
+                int navIndex = index >= 2 ? index + 1 : index;
+                setState(() {
+                  _selectedIndex = navIndex;
+                });
+              },
+              children: const <Widget>[
+                HomeScreen(),
+                SearchScreen(),
+                // The "Create" button doesn't have a page, so it's not in this list.
+                ConversationsScreen(),
+                ProfileScreen(),
+              ],
+            ),
           ),
-          borderGradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withOpacity(0.3),
-              Colors.white.withOpacity(0.2),
-            ],
+          GlassNavigationBar(
+            selectedIndex: _selectedIndex,
+            onItemTapped: _onItemTapped,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(CupertinoIcons.house_fill, 0, context),
-              _buildNavItem(CupertinoIcons.search, 1, context),
-              _buildCreateItem(2, context),
-              _buildNavItem(CupertinoIcons.chat_bubble_2_fill, 3, context),
-              _buildNavItem(CupertinoIcons.person_fill, 4, context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, int index, BuildContext context) {
-    final bool isSelected = selectedIndex == index;
-    // This logic ensures the correct color is used based on selection state
-    final color = isSelected ? Theme.of(context).primaryColor : Colors.grey[400];
-
-    return IconButton(
-      onPressed: () => onItemTapped(index),
-      icon: Icon(icon, color: color, size: 28),
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-    );
-  }
-
-  Widget _buildCreateItem(int index, BuildContext context) {
-    return GestureDetector(
-      onTap: () => onItemTapped(index),
-      child: GlassmorphicContainer(
-        width: 55,
-        height: 55,
-        borderRadius: 27.5,
-        blur: 10,
-        alignment: Alignment.center,
-        border: 1,
-        linearGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).primaryColor.withOpacity(0.4),
-            Theme.of(context).primaryColor.withOpacity(0.2),
-          ],
-        ),
-        borderGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withOpacity(0.5),
-            Colors.white.withOpacity(0.3),
-          ],
-        ),
-        child: const Icon(CupertinoIcons.add, color: Colors.white, size: 28),
+        ],
       ),
     );
   }
