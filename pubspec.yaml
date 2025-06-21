@@ -32,10 +32,12 @@ dev_dependencies:
 
   flutter_lints: ^3.0.0
   glassmorphism: ^3.0.0 # Add this line
+  dotted_border: ^2.1.0
   
 
 flutter:
   uses-material-design: true
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
