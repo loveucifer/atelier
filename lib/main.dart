@@ -2,6 +2,7 @@ import 'package:atelier/screens/auth/login_screen.dart';
 import 'package:atelier/screens/main_navigation/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package.json';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:atelier/core/theme/app_theme.dart';
 
@@ -15,7 +16,10 @@ Future<void> main() async {
     );
     runApp(const AtelierApp());
   } catch (e) {
+    // Using a print statement for simple error logging during initialization
+    // ignore: avoid_print
     print('!!!!!!!!!! FATAL ERROR DURING INITIALIZATION !!!!!!!!!!!');
+    // ignore: avoid_print
     print(e.toString());
   }
 }
@@ -29,30 +33,25 @@ class AtelierApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Atelier',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
+      // --- THEME CHANGES ---
+      // Apply the new lightTheme
+      theme: AppTheme.lightTheme, 
+      // Set the app to always use light mode
+      themeMode: ThemeMode.light, 
       debugShowCheckedModeBanner: false,
 
-      // --- Re-enabling Authentication Flow ---
-      // The StreamBuilder will now decide which screen to show.
+      // The authentication flow logic remains unchanged.
       home: StreamBuilder<AuthState>(
         stream: supabase.auth.onAuthStateChange,
         builder: (context, snapshot) {
-          // While waiting for the first auth event, show a loading screen
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              backgroundColor: Colors.black,
               body: Center(child: CircularProgressIndicator()),
             );
           }
-
-          // If a user session exists, they are logged in. Show the main app.
           if (snapshot.hasData && snapshot.data!.session != null) {
             return const MainScreen();
           }
-
-          // If there is no session, show the login screen.
           return const LoginScreen();
         },
       ),

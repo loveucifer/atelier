@@ -18,15 +18,15 @@ class _PulsatingGradientBackgroundState extends State<PulsatingGradientBackgroun
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 5), // Controls the speed of one pulse
+      duration: const Duration(seconds: 8), // Slowed down for a calmer effect
     );
 
-    // We'll animate the radius of the gradient from small to large
-    _animation = Tween<double>(begin: 0.5, end: 1.5).animate(
+    // Animate the radius of the gradient from small to large
+    _animation = Tween<double>(begin: 0.7, end: 1.5).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // This makes the animation loop forever, zooming in and out
+    // This makes the animation loop forever
     _controller.repeat(reverse: true);
   }
 
@@ -46,12 +46,13 @@ class _PulsatingGradientBackgroundState extends State<PulsatingGradientBackgroun
           builder: (context, child) {
             return Container(
               decoration: BoxDecoration(
+                // New black and white gradient
                 gradient: RadialGradient(
                   center: Alignment.center,
-                  radius: _animation.value, // The radius is now animated
-                  colors: [
-                    Theme.of(context).primaryColor.withOpacity(0.8),
-                    Theme.of(context).colorScheme.background,
+                  radius: _animation.value, // The radius is animated
+                  colors: const [
+                    Color(0xFFEAEAEA), // Light grey
+                    Colors.white,
                   ],
                   stops: const [0.0, 1.0],
                 ),
@@ -59,7 +60,7 @@ class _PulsatingGradientBackgroundState extends State<PulsatingGradientBackgroun
             );
           },
         ),
-        // This is the actual content of the screen (e.g., the login form)
+        // This is the actual content of the screen
         widget.child,
       ],
     );

@@ -1,8 +1,8 @@
+import 'package:atelier/main.dart';
+import 'package:atelier/screens/auth/signup_screen.dart';
 import 'package:atelier/widgets/common/pulsating_gradient_background.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:atelier/main.dart';
-import 'package:atelier/screens/auth/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,39 +27,40 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _isLoading = true; });
-    
+
     try {
       await supabase.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
     } on AuthException catch (error) {
-       if (mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(error.message),
           backgroundColor: Theme.of(context).colorScheme.error,
         ));
       }
     } catch (error) {
-       if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Text('An unexpected error occurred.'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ));
-       }
+      }
     }
-    
-    if(mounted) {
-       setState(() { _isLoading = false; });
+
+    if (mounted) {
+      setState(() { _isLoading = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Wrap the Scaffold in our new background widget
+    // Wrap the Scaffold with the animated background
     return PulsatingGradientBackground(
       child: Scaffold(
-        backgroundColor: Colors.transparent, // Make scaffold see-through
+        // Make scaffold transparent to see the background
+        backgroundColor: Colors.transparent,
         body: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -73,14 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Atelier',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'The Social Marketplace for Creators.',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 60),
                   TextFormField(
