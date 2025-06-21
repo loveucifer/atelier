@@ -1,9 +1,8 @@
+import 'package:atelier/widgets/common/pulsating_gradient_background.dart';
 import 'package:flutter/material.dart';
-import 'package:atelier/main.dart'; // To access the supabase client
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:atelier/main.dart';
 import 'package:atelier/screens/auth/signup_screen.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; 
-// NOTE: We will replace this with proper navigation later
-import 'package:atelier/screens/home/home_screen.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,19 +26,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() { _isLoading = true; });
     
     try {
-      final authResponse = await supabase.auth.signInWithPassword(
+      await supabase.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (mounted && authResponse.user != null) {
-        // Navigate to Home on success
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const HomeScreen()));
-      }
     } on AuthException catch (error) {
        if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -63,63 +56,67 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Atelier',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+    // Wrap the Scaffold in our new background widget
+    return PulsatingGradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent, // Make scaffold see-through
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Atelier',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Welcome Back',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 40),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) => (value == null || !value.contains('@')) ? 'Enter a valid email' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                   validator: (value) => (value == null || value.length < 6) ? 'Password must be at least 6 characters' : null,
-                ),
-                const SizedBox(height: 24),
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                        onPressed: _signIn,
-                        child: const Text('Login'),
-                      ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SignupScreen()),
-                    );
-                  },
-                  child: Text(
-                    "Don't have an account? Sign Up",
-                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  const SizedBox(height: 8),
+                  Text(
+                    'The Social Marketplace for Creators.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                )
-              ],
+                  const SizedBox(height: 60),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(labelText: 'Email'),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) => (value == null || !value.contains('@')) ? 'Enter a valid email' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(labelText: 'Password'),
+                    obscureText: true,
+                    validator: (value) => (value == null || value.length < 6) ? 'Password must be at least 6 characters' : null,
+                  ),
+                  const SizedBox(height: 24),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                          onPressed: _signIn,
+                          child: const Text('Login'),
+                        ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const SignupScreen()),
+                      );
+                    },
+                    child: Text(
+                      "Don't have an account? Sign Up",
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

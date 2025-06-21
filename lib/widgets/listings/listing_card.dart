@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 
 class ListingCard extends StatelessWidget {
-  // Pass the whole listing map now
-  final Map<String, String> listing;
+  // Change this to accept a map with dynamic value types
+  final Map<String, dynamic> listing;
 
   const ListingCard({
     super.key,
@@ -14,10 +14,14 @@ class ListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap the card with GestureDetector to make it tappable
+    // We now safely handle the data types inside the widget
+    final title = listing['title'] as String? ?? 'No Title';
+    final author = listing['author'] as String? ?? 'Unknown Artist';
+    final price = '₹${listing['price']?.toString() ?? '0'}';
+    final imageUrl = listing['imageUrl'] as String? ?? 'https://via.placeholder.com/300';
+
     return GestureDetector(
       onTap: () {
-        // Navigate to the details screen, passing the listing data
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -58,7 +62,7 @@ class ListingCard extends StatelessWidget {
                   topRight: Radius.circular(16),
                 ),
                 child: CachedNetworkImage(
-                  imageUrl: listing['imageUrl']!,
+                  imageUrl: imageUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   placeholder: (context, url) => Container(color: Colors.black26),
@@ -74,19 +78,19 @@ class ListingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      listing['title']!,
+                      title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'by ${listing['author']!}',
+                      'by $author',
                       style: TextStyle(color: Colors.grey[400], fontSize: 12),
                     ),
                     const Spacer(),
                     Text(
-                      listing['price']!,
+                      price,
                       style: TextStyle(
                         color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.bold,

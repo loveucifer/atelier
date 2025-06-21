@@ -1,3 +1,5 @@
+import 'package:atelier/widgets/common/glass_app_bar.dart';
+import 'package:atelier/widgets/common/pulsating_gradient_background.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:atelier/main.dart';
@@ -28,7 +30,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() { _isLoading = true; });
 
     try {
@@ -40,8 +41,6 @@ class _SignupScreenState extends State<SignupScreen> {
           'display_name': _displayNameController.text.trim(),
         },
       );
-      // The StreamBuilder in main.dart will handle navigation automatically.
-      // No need for a Navigator here.
     } on AuthException catch (error) {
       if(mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -65,67 +64,54 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Account'),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Join Atelier',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+    return PulsatingGradientBackground(
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.transparent,
+        appBar: const GlassAppBar(title: 'Create Account'),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(labelText: 'Unique Username'),
+                    validator: (value) => (value == null || value.isEmpty) ? 'Username cannot be empty' : null,
                   ),
-                ),
-                 const SizedBox(height: 8),
-                Text(
-                  'Become a part of the creative ecosystem.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 40),
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'Unique Username'),
-                  validator: (value) => (value == null || value.isEmpty) ? 'Username cannot be empty' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _displayNameController,
-                  decoration: const InputDecoration(labelText: 'Display Name'),
-                   validator: (value) => (value == null || value.isEmpty) ? 'Display Name cannot be empty' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  autocorrect: false,
-                   validator: (value) => (value == null || !value.contains('@')) ? 'Enter a valid email' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  validator: (value) => (value == null || value.length < 6) ? 'Password must be at least 6 characters' : null,
-                ),
-                const SizedBox(height: 24),
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                        onPressed: _signUp,
-                        child: const Text('Sign Up'),
-                      ),
-              ],
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _displayNameController,
+                    decoration: const InputDecoration(labelText: 'Display Name'),
+                    validator: (value) => (value == null || value.isEmpty) ? 'Display Name cannot be empty' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(labelText: 'Email'),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) => (value == null || !value.contains('@')) ? 'Enter a valid email' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(labelText: 'Password'),
+                    obscureText: true,
+                    validator: (value) => (value == null || value.length < 6) ? 'Password must be at least 6 characters' : null,
+                  ),
+                  const SizedBox(height: 24),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                          onPressed: _signUp,
+                          child: const Text('Sign Up'),
+                        ),
+                ],
+              ),
             ),
           ),
         ),

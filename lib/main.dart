@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:atelier/core/theme/app_theme.dart';
 
 Future<void> main() async {
-  // All the initialization code stays the same
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await dotenv.load(fileName: ".env");
@@ -34,26 +33,29 @@ class AtelierApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
-      
-      // --- CHANGE FOR DEVELOPMENT ---
-      // We are temporarily bypassing the auth check and going straight to the main screen.
-      home: const MainScreen(),
 
-      /* // --- ORIGINAL AUTH CODE ---
-      // To re-enable login, comment out the line above and uncomment this block.
+      // --- Re-enabling Authentication Flow ---
+      // The StreamBuilder will now decide which screen to show.
       home: StreamBuilder<AuthState>(
         stream: supabase.auth.onAuthStateChange,
         builder: (context, snapshot) {
+          // While waiting for the first auth event, show a loading screen
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
+
+          // If a user session exists, they are logged in. Show the main app.
           if (snapshot.hasData && snapshot.data!.session != null) {
             return const MainScreen();
           }
+
+          // If there is no session, show the login screen.
           return const LoginScreen();
         },
       ),
-      */
     );
   }
 }

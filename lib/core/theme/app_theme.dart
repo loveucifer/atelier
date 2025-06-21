@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // New, deeper color palette
-  static const Color primaryRed = Color(0xFFC62828); // A deeper, richer red
-  static const Color pitchBlack = Color(0xFF000000); // True pitch black
+  // Use "Poppins" as the default font family for the app
+  static const String _fontFamily = 'Poppins'; 
+
+  // Primary Red Accent
+  static const Color primaryRed = Color(0xFFC62828);
+  // Pitch Black Background
+  static const Color pitchBlack = Color(0xFF000000);
 
   // --- DARK THEME ---
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: pitchBlack, // Use pitch black for the base
+    fontFamily: _fontFamily, // Apply the font family
+    scaffoldBackgroundColor: pitchBlack,
     primaryColor: primaryRed,
     colorScheme: const ColorScheme.dark(
       primary: primaryRed,
       secondary: primaryRed,
       background: pitchBlack,
-      surface: Color(0xFF1A1A1A), // A very dark grey for card-like surfaces
+      surface: Color(0xFF1A1A1A),
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onBackground: Colors.white,
@@ -22,17 +27,11 @@ class AppTheme {
       error: Colors.redAccent,
     ),
      appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent, // Make AppBar transparent to see the gradient
+      backgroundColor: Colors.transparent,
       elevation: 0,
       iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(fontFamily: _fontFamily, color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
     ),
-    //bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      //backgroundColor: pitchBlack.withOpacity(0.8), // Semi-transparent for a glass effect
-     // selectedItemColor: primaryRed,
-     // unselectedItemColor: Colors.grey[600],
-     // elevation: 0,
-    //),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryRed,
@@ -41,6 +40,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16),
+        textStyle: const TextStyle(fontFamily: _fontFamily, fontWeight: FontWeight.bold),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -51,13 +51,14 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
-      hintStyle: TextStyle(color: Colors.grey[600]),
+      hintStyle: TextStyle(fontFamily: _fontFamily, color: Colors.grey[600]),
     ),
   );
 
-  // --- LIGHT THEME (can be adjusted later if needed) ---
+  // --- LIGHT THEME ---
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
+    fontFamily: _fontFamily,
     scaffoldBackgroundColor: Colors.white,
     primaryColor: primaryRed,
     colorScheme: const ColorScheme.light(

@@ -1,8 +1,9 @@
 import 'package:atelier/screens/conversations/conversations_screen.dart';
 import 'package:atelier/screens/home/home_screen.dart';
+import 'package:atelier/screens/listings/create_listing_screen.dart';
 import 'package:atelier/screens/profile/profile_screen.dart';
 import 'package:atelier/screens/search/search_screen.dart';
-import 'package:atelier/widgets/common/animated_gradient_background.dart';
+import 'package:atelier/widgets/common/breathing_gradient_background.dart';
 import 'package:atelier/widgets/common/glass_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -25,15 +26,23 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onItemTapped(int index) {
     if (index == 2) {
-      // TODO: Handle create listing action
-      print("Create button tapped!");
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          builder: (_, controller) => BreathingGradientBackground(
+            child: CreateListingScreen(),
+          ),
+        ),
+      );
       return;
     }
 
-    // A bug fix: The PageView has fewer items than the nav bar because of the create button.
-    // We need to map the nav bar index to the correct page index.
     int pageIndex = index > 2 ? index - 1 : index;
-
     setState(() {
       _selectedIndex = index;
     });
@@ -49,11 +58,10 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          AnimatedGradientBackground(
+          BreathingGradientBackground(
             child: PageView(
               controller: _pageController,
               onPageChanged: (index) {
-                // A bug fix: Map the page index back to the correct nav bar index.
                 int navIndex = index >= 2 ? index + 1 : index;
                 setState(() {
                   _selectedIndex = navIndex;
@@ -62,7 +70,6 @@ class _MainScreenState extends State<MainScreen> {
               children: const <Widget>[
                 HomeScreen(),
                 SearchScreen(),
-                // The "Create" button doesn't have a page, so it's not in this list.
                 ConversationsScreen(),
                 ProfileScreen(),
               ],
