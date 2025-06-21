@@ -65,6 +65,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
             fileOptions: FileOptions(contentType: _selectedImage!.mimeType),
           );
 
+      // And getting the public URL from the correct bucket
       final imageUrl = supabase.storage.from('listing-media').getPublicUrl(filePath);
 
       await supabase.from('listings').insert({
