@@ -4,6 +4,7 @@ import 'package:atelier/widgets/common/breathing_gradient_background.dart';
 import 'package:atelier/widgets/common/glass_app_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+// This import line is now corrected
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -78,11 +79,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final filePath = '${user.id}/$fileName';
 
         if (_currentAvatarUrl != null && _currentAvatarUrl!.isNotEmpty) {
-           final oldPathWithFolder = Uri.parse(_currentAvatarUrl!).pathSegments.sublist(2).join('/');
-          try {
-            await supabase.storage.from('avatars').remove([oldPathWithFolder]);
-          } catch (e) {
-            print("Error deleting old avatar: $e");
+          final uri = Uri.parse(_currentAvatarUrl!);
+          final pathSegments = uri.pathSegments;
+          final bucketIndex = pathSegments.indexOf('avatars');
+          if (bucketIndex != -1) {
+            final oldFilePath = pathSegments.sublist(bucketIndex + 1).join('/');
+            try {
+              await supabase.storage.from('avatars').remove([oldFilePath]);
+            } catch (e) {
+              print("Error deleting old avatar: $e");
+            }
           }
         }
 
@@ -93,7 +99,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final updates = {
         'display_name': _displayNameController.text.trim(),
         'bio': _bioController.text.trim(),
-        'updated_at': DateTime.now().toIso8601String(),
         'avatar_url': newAvatarUrl,
       };
 

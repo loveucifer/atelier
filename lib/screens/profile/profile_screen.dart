@@ -9,9 +9,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 
+// A helper type to make the return type of _fetchProfileData clearer
 typedef ProfileData = (Map<String, dynamic> profile, List<Map<String, dynamic>> listings, List<Map<String, dynamic>> reviews);
 
 class ProfileScreen extends StatefulWidget {
+  // This allows us to pass a specific user's ID to the screen
   final String? userId;
   const ProfileScreen({super.key, this.userId});
 
@@ -26,10 +28,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    // If a userId is passed to the widget, use it. Otherwise, use the current user's ID.
     _userIdToFetch = widget.userId ?? supabase.auth.currentUser!.id;
     _profileFuture = _fetchProfileData();
   }
 
+  // Fetches all data for the specified user profile
   Future<ProfileData> _fetchProfileData() async {
     final profileFuture = supabase.from('profiles').select().eq('id', _userIdToFetch).single();
     final listingsFuture = supabase.from('listings').select('*, profiles(display_name)').eq('user_id', _userIdToFetch).order('created_at');
@@ -44,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return (profile, listings, reviews);
   }
   
+  // Calculates a user's trust score based on their review ratings
   String _calculateTrustScore(List<Map<String, dynamic>> reviews) {
     if (reviews.isEmpty) return 'New User';
     double totalRating = 0;
@@ -54,12 +59,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return '${(averageRating / 5 * 100).toStringAsFixed(0)}%';
   }
 
+  // Allows for pull-to-refresh functionality
   Future<void> _refreshData() async {
     setState(() { _profileFuture = _fetchProfileData(); });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Determine if the profile being viewed belongs to the currently logged-in user
     final isCurrentUser = widget.userId == null || widget.userId == supabase.auth.currentUser!.id;
 
     return Scaffold(
@@ -87,6 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onRefresh: _refreshData,
                 child: CustomScrollView(
                   slivers: [
+                    // --- Profile Header Section ---
                     SliverPadding(
                       padding: const EdgeInsets.only(top: 100, left: 16, right: 16),
                       sliver: SliverToBoxAdapter(
@@ -111,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text('@${profile['username'] ?? 'nousername'}', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey)),
                             const SizedBox(height: 16),
                             Text(
-                              profile['bio'] ?? 'No bio yet.',
+                              profile['bio'] ?? (isCurrentUser ? 'No bio yet. Tap the edit button to add one!' : 'No bio yet.'),
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5, color: Colors.grey[400]),
                             ),
@@ -119,11 +127,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
+                    // --- Trust & Verification Section ---
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(children: [
                           const Divider(color: Colors.white24),
+                          // Only show the "Get Verified" button to the profile owner
                           if (isCurrentUser && !isVerified)
                             ListTile(
                               leading: Icon(Icons.shield_outlined, color: Theme.of(context).primaryColor),
@@ -142,6 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ]),
                       ),
                     ),
+                    // --- User's Listings Section ---
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -149,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     listings.isEmpty
-                        ? const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(32), child: Center(child: Text("This user hasn't created any listings yet."))))
+                        ? SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(isCurrentUser ? "You haven't created any listings yet." : "This user hasn't created any listings yet."))))
                         : SliverPadding(
                             padding: const EdgeInsets.all(16),
                             sliver: SliverGrid(
@@ -179,6 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
+                    // --- Reviews Section ---
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -202,6 +214,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
+              // --- Edit and Logout Buttons ---
+              // Only show these buttons if the current user is viewing their own profile
               if (isCurrentUser)
                 Positioned(
                   top: 50,
