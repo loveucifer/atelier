@@ -18,15 +18,13 @@ class _PulsatingGradientBackgroundState extends State<PulsatingGradientBackgroun
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 8), // Slowed down for a calmer effect
+      duration: const Duration(seconds: 8),
     );
 
-    // Animate the radius of the gradient from small to large
-    _animation = Tween<double>(begin: 0.7, end: 1.5).animate(
+    _animation = Tween<double>(begin: 0.2, end: 1.5).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // This makes the animation loop forever
     _controller.repeat(reverse: true);
   }
 
@@ -40,19 +38,23 @@ class _PulsatingGradientBackgroundState extends State<PulsatingGradientBackgroun
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Use an AnimatedBuilder for a performance-optimized animation
+        // Layer 1: A solid white background.
+        Container(color: Colors.white),
+
+        // Layer 2: The animated black radial gradient pulse.
         AnimatedBuilder(
           animation: _animation,
           builder: (context, child) {
             return Container(
               decoration: BoxDecoration(
-                // New black and white gradient
                 gradient: RadialGradient(
                   center: Alignment.center,
-                  radius: _animation.value, // The radius is animated
-                  colors: const [
-                    Color(0xFFEAEAEA), // Light grey
-                    Colors.white,
+                  radius: _animation.value,
+                  colors: [
+                    // --- OPACITY INCREASED HERE ---
+                    // Increased from 0.15 to 0.35 for a stronger effect.
+                    Colors.black.withOpacity(0.35),
+                    Colors.transparent,
                   ],
                   stops: const [0.0, 1.0],
                 ),
@@ -60,7 +62,8 @@ class _PulsatingGradientBackgroundState extends State<PulsatingGradientBackgroun
             );
           },
         ),
-        // This is the actual content of the screen
+
+        // Layer 3: Your screen's content.
         widget.child,
       ],
     );

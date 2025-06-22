@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               // TODO: Implement cart functionality or other actions.
             },
-            icon: const Icon(CupertinoIcons.shopping_bag),
+            icon: const Icon(CupertinoIcons.shopping_cart),
           )
         ],
       ),

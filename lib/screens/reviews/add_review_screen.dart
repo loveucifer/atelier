@@ -1,6 +1,6 @@
+// lib/screens/reviews/add_review_screen.dart
+
 import 'package:atelier/main.dart';
-import 'package:atelier/widgets/common/breathing_gradient_background.dart';
-import 'package:atelier/widgets/common/glass_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class AddReviewScreen extends StatefulWidget {
@@ -60,51 +60,54 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BreathingGradientBackground(
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        backgroundColor: Colors.transparent,
-        appBar: const GlassAppBar(title: 'Leave a Review'),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.only(top: 120, left: 16, right: 16, bottom: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('Select your rating:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return IconButton(
-                    onPressed: () {
-                      setState(() { _rating = index + 1; });
-                    },
-                    icon: Icon(
-                      index < _rating ? Icons.star_rounded : Icons.star_border_rounded,
-                      color: Colors.amber,
-                      size: 40,
-                    ),
-                  );
-                }),
+    // The old BreathingGradientBackground is replaced with a standard Scaffold
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Leave a Review'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Select your rating:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            // Star rating row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                return IconButton(
+                  onPressed: () {
+                    setState(() { _rating = index + 1; });
+                  },
+                  icon: Icon(
+                    index < _rating ? Icons.star_rounded : Icons.star_border_rounded,
+                    color: Colors.amber,
+                    size: 40,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 24),
+            // Experience text field
+            TextFormField(
+              controller: _contentController,
+              decoration: const InputDecoration(
+                labelText: 'Share your experience (optional)',
+                hintText: 'Describe your interaction with the user or their product...',
+                alignLabelWithHint: true,
               ),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  labelText: 'Share your experience (optional)',
-                  hintText: 'Describe your interaction with the user or their product...',
-                ),
-                maxLines: 5,
-              ),
-              const SizedBox(height: 32),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: _submitReview,
-                      child: const Text('Submit Review'),
-                    ),
-            ],
-          ),
+              maxLines: 5,
+            ),
+            const SizedBox(height: 32),
+            // Submit button
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: _submitReview,
+                    child: const Text('Submit Review'),
+                  ),
+          ],
         ),
       ),
     );

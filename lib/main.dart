@@ -2,7 +2,6 @@ import 'package:atelier/screens/auth/login_screen.dart';
 import 'package:atelier/screens/main_navigation/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package.json';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:atelier/core/theme/app_theme.dart';
 

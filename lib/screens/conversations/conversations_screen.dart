@@ -21,7 +21,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     _conversationsFuture = _fetchConversations();
   }
 
-  // Logic to fetch conversations is preserved
   Future<List<Map<String, dynamic>>> _fetchConversations() async {
     return await supabase.rpc('get_my_conversations');
   }
@@ -36,7 +35,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: const Text('Inbox'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _conversationsFuture,
@@ -49,9 +48,22 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
-              child: Text(
-                'You have no messages yet.',
-                style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(CupertinoIcons.ellipses_bubble, size: 60, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No messages yet',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                   const SizedBox(height: 8),
+                  Text(
+                    'Start a conversation from a listing page.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                ],
               ),
             );
           }
@@ -62,41 +74,40 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               itemCount: conversations.length,
-              separatorBuilder: (context, index) => const Divider(indent: 80, height: 1),
+              separatorBuilder: (context, index) => const Divider(indent: 84, height: 1),
               itemBuilder: (context, index) {
                 final convo = conversations[index];
                 final lastMessageTime = convo['last_message_time'];
 
                 return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   leading: CircleAvatar(
-                    radius: 28,
+                    radius: 30,
                     backgroundColor: Theme.of(context).inputDecorationTheme.fillColor,
                     backgroundImage: convo['other_user_avatar_url'] != null
                         ? CachedNetworkImageProvider(convo['other_user_avatar_url'])
                         : null,
                     child: convo['other_user_avatar_url'] == null
-                        ? Icon(CupertinoIcons.person_fill, color: Colors.grey.shade400)
+                        ? Icon(CupertinoIcons.person_fill, color: Colors.grey.shade400, size: 28)
                         : null,
                   ),
                   title: Text(
                     convo['other_user_display_name'] ?? 'Unknown User',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
                   ),
                   subtitle: Text(
                     convo['last_message_content'] ?? 'No messages yet',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                    style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 15),
                   ),
                   trailing: lastMessageTime != null
                       ? Text(
                           DateFormat.jm().format(DateTime.parse(lastMessageTime)),
-                          style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                          style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                         )
                       : null,
                   onTap: () {
-                    // Navigation logic is preserved
                     Navigator.push(
                       context,
                       MaterialPageRoute(
