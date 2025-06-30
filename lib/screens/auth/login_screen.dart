@@ -25,7 +25,55 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signIn() async {
-    // ... (Your existing _signIn logic remains here)
+    if (!_formKey.currentState!.validate()) return;
+    setState(() { _isLoading = true; });
+
+    // --- DEBUGGING ADDED HERE ---
+    try {
+      // ignore: avoid_print
+      print('Attempting to sign in with email: ${_emailController.text}');
+
+      await supabase.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // ignore: avoid_print
+      print('Sign in successful!');
+
+    } on AuthException catch (error) {
+       if (mounted) {
+        // We will now print the error to the console in addition to showing the SnackBar.
+        // ignore: avoid_print
+        print('!!!!!!!!!! SUPABASE AUTH ERROR !!!!!!!!!!!');
+        // ignore: avoid_print
+        print('Supabase error message: ${error.message}');
+        
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(error.message),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ));
+      }
+    } catch (error) {
+       if (mounted) {
+        // This will catch any other unexpected errors.
+        // ignore: avoid_print
+        print('!!!!!!!!!! UNEXPECTED ERROR !!!!!!!!!!!');
+        // ignore: avoid_print
+        print('Error details: $error');
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('An unexpected error occurred.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ));
+       }
+    } finally {
+        // This 'finally' block ensures the loading state is always reset.
+        if (mounted) {
+            setState(() { _isLoading = false; });
+        }
+    }
+    // --- END OF DEBUGGING ---
   }
 
   @override
@@ -45,7 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'Atelier',
                     textAlign: TextAlign.center,
-                    // Text color is now black to be visible on the white background
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -62,12 +109,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
                     keyboardType: TextInputType.emailAddress,
+                    validator: (value) => (value == null || !value.contains('@')) ? 'Enter a valid email' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(labelText: 'Password'),
                     obscureText: true,
+                    validator: (value) => (value == null || value.length < 6) ? 'Password must be at least 6 characters' : null,
                   ),
                   const SizedBox(height: 24),
                   _isLoading
@@ -97,3 +146,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

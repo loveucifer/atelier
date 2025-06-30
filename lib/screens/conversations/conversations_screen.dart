@@ -48,22 +48,25 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(CupertinoIcons.ellipses_bubble, size: 60, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No messages yet',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                   const SizedBox(height: 8),
-                  Text(
-                    'Start a conversation from a listing page.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(CupertinoIcons.ellipses_bubble, size: 60, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No messages yet',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Start a conversation from a listing page.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
               ),
             );
           }

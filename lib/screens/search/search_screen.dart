@@ -17,7 +17,6 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Map<String, dynamic>> _allResults = [];
   bool _isLoading = false;
 
-  // --- Data Fetching Logic (Unchanged) ---
   Future<void> _performSearch(String query) async {
     if (query.trim().isEmpty) {
       setState(() {
@@ -32,9 +31,15 @@ class _SearchScreenState extends State<SearchScreen> {
         'search_atelier',
         params: {'search_term': query.trim()},
       );
-      if (mounted) {
+
+      // --- DEBUG LOGGING ADDED ---
+      // This will show you exactly what Supabase is returning.
+      // ignore: avoid_print
+      print('Supabase search results: $results');
+
+      if (mounted && results is List) {
         setState(() {
-          _allResults = (results as List).cast<Map<String, dynamic>>();
+          _allResults = List<Map<String, dynamic>>.from(results);
         });
       }
     } catch (e) {
@@ -57,27 +62,22 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  // --- Helper method to build a section with a title and list of items ---
   Widget _buildSection(BuildContext context, String title, List<Widget> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 24.0, bottom: 8.0, left: 16.0, right: 16.0),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 8.0),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         ),
-        ...items, // Spread operator to insert list items
+        ...items,
       ],
     );
   }
 
-  // --- Helper method to build a single result tile ---
   Widget _buildResultTile(Map<String, dynamic> item) {
     final bool isUser = item['item_type'] == 'user';
-    final listingData = isUser ? null : (item['data'] as Map).cast<String, dynamic>();
+    final listingData = isUser || item['data'] == null ? null : (item['data'] as Map).cast<String, dynamic>();
     
     return ListTile(
       leading: CircleAvatar(
@@ -86,24 +86,21 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundImage: item['image_url'] != null ? CachedNetworkImageProvider(item['image_url']) : null,
         child: item['image_url'] == null ? Icon(isUser ? CupertinoIcons.person : CupertinoIcons.photo, color: Colors.grey) : null,
       ),
-      title: Text(item['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(isUser ? '@${item['username']}' : (item['display_name'] ?? 'Listing')),
+      title: Text(item['title'] ?? 'No Title', style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(isUser ? '@${item['username'] ?? ''}' : (item['display_name'] ?? 'Listing')),
       trailing: const Icon(CupertinoIcons.chevron_right),
       onTap: () {
-        // --- FIXED NAVIGATION LOGIC ---
         if (isUser) {
-          // Navigate to the user's public profile page
           Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(userId: item['id'])));
-        } else {
-          // Navigate to the listing details screen
+        } else if (listingData != null) {
           final fullListingData = {
-            'id': listingData?['id'],
-            'title': listingData?['title'],
+            'id': listingData['id'],
+            'title': listingData['title'],
             'author': item['display_name'],
-            'price': listingData?['price_guide'],
+            'price': listingData['price_guide'],
             'imageUrl': item['image_url'],
-            'user_id': listingData?['user_id'],
-            'description': listingData?['description']
+            'user_id': listingData['user_id'],
+            'description': listingData['description']
           };
           Navigator.push(context, MaterialPageRoute(builder: (context) => ListingDetailsScreen(listing: fullListingData)));
         }
@@ -113,36 +110,28 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // --- SEPARATE RESULTS INTO CATEGORIES ---
+    // --- ADDED SAFETY CHECKS FOR DATA PROCESSING ---
     final userResults = _allResults.where((r) => r['item_type'] == 'user').toList();
-    final productResults = _allResults.where((r) => r['item_type'] == 'listing' && (r['data'] as Map)['type'] == 'PRODUCT').toList();
-    final serviceResults = _allResults.where((r) => r['item_type'] == 'listing' && (r['data'] as Map)['type'] == 'SERVICE').toList();
+    final productResults = _allResults.where((r) {
+      return r['item_type'] == 'listing' && r['data'] is Map && (r['data'] as Map)['type'] == 'PRODUCT';
+    }).toList();
+    final serviceResults = _allResults.where((r) {
+      return r['item_type'] == 'listing' && r['data'] is Map && (r['data'] as Map)['type'] == 'SERVICE';
+    }).toList();
     
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-      ),
+      appBar: AppBar(title: const Text('Search')),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.all(16.0),
             child: TextFormField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search for items or creators...',
                 prefixIcon: const Icon(CupertinoIcons.search, color: Colors.grey),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.grey),
-                        onPressed: () {
-                          _searchController.clear();
-                          _performSearch('');
-                        },
-                      )
-                    : null,
               ),
               onChanged: _performSearch,
-              onFieldSubmitted: _performSearch,
             ),
           ),
           Expanded(
@@ -157,7 +146,6 @@ class _SearchScreenState extends State<SearchScreen> {
                           style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                         ),
                       )
-                    // --- Display Categorized Results ---
                     : ListView(
                         children: [
                           if (userResults.isNotEmpty)

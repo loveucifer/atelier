@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:atelier/main.dart';
-import 'package:atelier/widgets/common/glass_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -29,7 +28,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('conversation_id', widget.conversationId)
-        .order('created_at');
+        .order('created_at', ascending: true); // Fetch messages in chronological order
   }
 
   @override
@@ -63,48 +62,47 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: GlassAppBar(title: widget.otherUserName),
+      appBar: AppBar(
+        title: Text(widget.otherUserName),
+      ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
               stream: _messagesStream,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                final messages = snapshot.data ?? [];
+                final messages = snapshot.data!;
                 if (messages.isEmpty) {
                   return const Center(child: Text('Say hello!'));
                 }
                 final currentUserId = supabase.auth.currentUser!.id;
 
                 return ListView.builder(
-                  padding: const EdgeInsets.only(top: 100, bottom: 16, left: 16, right: 16),
-                  reverse: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    final message = messages[messages.length - 1 - index];
+                    final message = messages[index];
                     final isMine = message['sender_id'] == currentUserId;
 
                     return Align(
                       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
                           color: isMine
                               ? Theme.of(context).primaryColor
-                              : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                              : Theme.of(context).inputDecorationTheme.fillColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           message['content'],
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: isMine ? Colors.white : Colors.black,
+                          ),
                         ),
                       ),
                     );
@@ -113,9 +111,14 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+          // New message input area style
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -123,18 +126,20 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _messageController,
                       decoration: const InputDecoration(
                         hintText: 'Type a message...',
-                        filled: true,
                         border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
                       ),
-                       onFieldSubmitted: (_) => _sendMessage(),
+                      // The onFieldSubmitted callback has been removed to prevent accidental sending.
                     ),
                   ),
                   const SizedBox(width: 8),
-                  IconButton.filled(
+                  IconButton(
                     onPressed: _sendMessage,
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(Icons.send_rounded),
                     style: IconButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
                     ),
                   ),
                 ],
